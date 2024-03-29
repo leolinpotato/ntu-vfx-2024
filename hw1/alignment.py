@@ -1,6 +1,8 @@
 import numpy as np
 import math
 from PIL import Image
+from os.path import splitext
+
 def compare(a, b, mask, n, m, offset_x, offset_y) :
     c = np.roll(b, (offset_x, offset_y), axis = (0, 1))
     xor_result = np.logical_xor(a, c)
@@ -71,27 +73,63 @@ def alignment(image_a, image_b, n, m, k) :
     
     return min_offset
 
+def img_cut(img, x, y, z, w):
+    img2 = img.crop((x, y, 6240 - z, 4167 - w))
+    return img2
 
-image_1 = Image.open('image/DSCF4452.jpg')
-print(image_1.size)
-image_2 = Image.open('image/DSCF4453.jpg')
-image_3 = Image.open('image/DSCF4454.jpg')
-image_4 = Image.open('image/DSCF4455.jpg')
-image_5 = Image.open('image/DSCF4456.jpg')
-image_6 = Image.open('image/DSCF4458.jpg')
-image_7 = Image.open('image/DSCF4459.jpg')
-image_8 = Image.open('image/DSCF4460.jpg')
-image_9 = Image.open('image/DSCF4461.jpg')
-image_10 = Image.open('image/DSCF4462.jpg')
-print("1, 2:", alignment(image_1, image_2, 6240, 4160, 7))
-print("1, 3:", alignment(image_1, image_3, 6240, 4160, 7))
-print("1, 4:", alignment(image_1, image_4, 6240, 4160, 7))
-print("1, 5:", alignment(image_1, image_5, 6240, 4160, 7))
-print("1, 6:", alignment(image_1, image_6, 6240, 4160, 7))
-print("1, 7:", alignment(image_1, image_7, 6240, 4160, 7))
-print("1, 8:", alignment(image_1, image_8, 6240, 4160, 7))
-print("1, 9:", alignment(image_1, image_9, 6240, 4160, 7))
-print("1, 10:", alignment(image_1, image_10, 6240, 4160, 7))
+def main():
+    dir_name = 'image/'
+    image_names = ['DSCF4452.jpg', 'DSCF4453.jpg', 'DSCF4454.jpg',  'DSCF4455.jpg', 'DSCF4456.jpg', 'DSCF4458.jpg', 'DSCF4459.jpg', 'DSCF4460.jpg', 'DSCF4461.jpg', 'DSCF4462.jpg']
+    images = []
+    for name in image_names:
+        tmpimg = Image.open(dir_name + name)
+        images.append(tmpimg)
+    i = 0
+    shifts = [(0, 0)]
+    for img in images:
+        i += 1
+        if (i == 1) :
+            continue
+        shift = alignment(images[0], img, 6240, 4160, 7)
+        print('1, ', i, ': ', shift)
+        shifts.append(shift)
+    max_shift = (0, 0)
+    for shift in shifts:
+        if shift[0] > max_shift[0] :
+            max_shift = (shift[0], max_shift[1])
+        if shift[1] > max_shift[1] :
+            max_shift = (max_shift[0], shift[1])
+    i = 0
+    for img, shift in zip(images, shifts):
+        img = img_cut(img, max_shift[0] - shift[0], max_shift[1] - shift[1], shift[0], shift[1])
+    for img in images:
+        name = splitext(image_names[i])[0] + '_' + str(i) + '.jpg'
+        img.save(dir_name + name)
+
+
+def main2():
+    dir_name = 'image/'
+    image_names = ['DSCF4452.jpg', 'DSCF4453.jpg', 'DSCF4454.jpg',  'DSCF4455.jpg', 'DSCF4456.jpg', 'DSCF4458.jpg', 'DSCF4459.jpg', 'DSCF4460.jpg', 'DSCF4461.jpg', 'DSCF4462.jpg']
+    images = []
+    for name in image_names:
+        tmpimg = Image.open(dir_name + name)
+        images.append(tmpimg)
+    i = 0
+    shifts = [(0, 0), (3, 3), (1, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0)]
+    max_shift = (0, 0)
+    for shift in shifts:
+        if shift[0] > max_shift[0] :
+            max_shift = (shift[0], max_shift[1])
+        if shift[1] > max_shift[1] :
+            max_shift = (max_shift[0], shift[1])
+    i = 0
+    for img, shift in zip(images, shifts):
+        img = img_cut(img, max_shift[0] - shift[0], max_shift[1] - shift[1], shift[0], shift[1])
+    for img in images:
+        name = splitext(image_names[i])[0] + '_' + str(i) + '.jpg'
+        img.save(dir_name + name)
+        i += 1
+main2()
 
 
 
