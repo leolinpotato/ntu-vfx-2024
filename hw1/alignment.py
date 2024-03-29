@@ -93,8 +93,8 @@ def alignment(image_a, image_b, n, m, k) :
     '''
     min_offset = (0, 0)
     min_loss = n * m
-    for i in range(pre_shift[0] - 2, pre_shift[0] + 3) :
-        for j in range(pre_shift[1] - 2, pre_shift[1] + 3) :
+    for i in range(pre_shift[0] - 1, pre_shift[0] + 2) :
+        for j in range(pre_shift[1] - 1, pre_shift[1] + 2) :
             current_loss = compare(image_a, image_b, n, m, i, j)
             if current_loss < min_loss :
                 min_offset = (i, j)
@@ -106,6 +106,7 @@ def alignment(image_a, image_b, n, m, k) :
 
 def padding(img, n, m, x, y):
     #cv2.rectangle(image, start_point, end_point, color, thickness) 
+    #img2 = cv2.rectangle(img, (0, 0), (n - 400, m - 400), (0, 0, 0) , -1)
     img2 = cv2.rectangle(img, (0, 0), (n - 1, y), (0, 0, 0) , -1)
     img2 = cv2.rectangle(img2, (0, 0), (x, m - 1), (0, 0, 0) , -1)
     img2 = cv2.rectangle(img2, (n - x - 1, 0), (n - 1, m - 1), (0, 0, 0) , -1)
@@ -137,13 +138,15 @@ def main():
             max_shift = (abs(shift[0]), max_shift[1])
         if abs(shift[1]) > max_shift[1] :
             max_shift = (max_shift[0], abs(shift[1]))
+    print(max_shift)
     
     i = 0
     shifted_img = []
     for img, shift in zip(images, shifts):
         shifted_img.append(img_shift(img, 6240, 4160, shift[0], shift[1]))
         shifted_img[i] = padding(shifted_img[i], 6240, 4160, max_shift[0], max_shift[1])
-    
+        i += 1
+    i = 0
     for img in shifted_img:
         name = splitext(image_names[i])[0] + '_align' + '.jpg'
         cv2.imwrite(dir_name + 'align/' + name, img)
