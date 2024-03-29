@@ -1,14 +1,14 @@
 # NTU-VFX2024
 
 # file structure
-hw1
-|- image
-| |- align
-| | |- 'imagename'_align.jpg * 10
-| |- 'imagename'.jpg * 10
-|- result
-|- alignment.py
-|- HDR.py
+hw1  
+|- image  
+| |- align  
+| | |- 'imagename'_align.jpg * 10  
+| |- 'imagename'.jpg * 10  
+|- result  
+|- alignment.py  
+|- HDR.py  
 
 
 # change log
