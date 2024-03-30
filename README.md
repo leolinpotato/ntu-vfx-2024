@@ -20,3 +20,6 @@ hw1
 
 ## 2024/3/30 21:14
 - use reflect mode for padding
+
+## 2024/3/30 11:16
+- add tone-mapping feature using Photographic Tone Reproduction
