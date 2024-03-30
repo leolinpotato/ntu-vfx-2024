@@ -102,15 +102,15 @@ def alignment(image_a, image_b, n, m, k) :
     
     return min_offset
 
-
-
 def padding(img, n, m, x, y):
-    #cv2.rectangle(image, start_point, end_point, color, thickness) 
-    #img2 = cv2.rectangle(img, (0, 0), (n - 400, m - 400), (0, 0, 0) , -1)
+    crop_img = img[y:m - y, x:n - x]
+    img2 = cv2.copyMakeBorder(crop_img, y, y, x, x, cv2.BORDER_REFLECT)
+    '''
     img2 = cv2.rectangle(img, (0, 0), (n - 1, y), (0, 0, 0) , -1)
     img2 = cv2.rectangle(img2, (0, 0), (x, m - 1), (0, 0, 0) , -1)
     img2 = cv2.rectangle(img2, (n - x - 1, 0), (n - 1, m - 1), (0, 0, 0) , -1)
     img2 = cv2.rectangle(img2, (0, m - 1 - y), (n - 1, m - 1), (0, 0, 0) , -1)
+    '''
     return img2
 
 
