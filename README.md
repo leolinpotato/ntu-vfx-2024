@@ -9,6 +9,9 @@ hw1
 |- result  
 |- alignment.py  
 |- HDR.py  
+|- JBF.py
+|- Reinhard.py
+|- main.py
 
 
 # change log
@@ -21,5 +24,10 @@ hw1
 ## 2024/3/30 21:14
 - use reflect mode for padding
 
-## 2024/3/30 11:16
+## 2024/3/30 23:16
 - add tone-mapping feature using Photographic Tone Reproduction
+
+## 2024/3/31 14:14
+- add Bilateral filter
+- rearrange file structure
+- add OpenCV Reinhard
