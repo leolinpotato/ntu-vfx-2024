@@ -5,12 +5,12 @@ B10902024 林宸宇
 B11902174 陳璿修
 
 ## File Structure
-[hw1_17]
-|-- [data]
-|---- [images]
-|---- [HDR_images]
-|---- [tone_mapped_images]
-|-- [code]
+\[hw1_17\]
+|-- \[data\]
+|---- \[images\]
+|---- \[HDR_images\]
+|---- \[tone_mapped_images\]
+|-- \[code\]
 |---- main.py
 |---- HDR.py
 |---- JBF.py
