@@ -46,6 +46,9 @@ python main.py -a -t all -g
 ```
 Arguments:
 - \-a: align the images
+- \-d: HDR option, can be set to
+	- PaulDebevec
+	- MitsuagaNayar
 - \-t: set the tone-mapping algorithm, can be set to
 	- Reinhard
 	- Bilateral

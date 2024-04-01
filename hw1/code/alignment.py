@@ -53,44 +53,7 @@ def alignment(image_a, image_b, n, m, k) :
     pre_shift = alignment(new_image_a, new_image_b, new_n, new_m, k - 1)
     pre_shift = (pre_shift[0] * 2, pre_shift[1] * 2)
     #print(k)
-    '''
-    image_a_L = image_a.convert('L')
-    image_b_L = image_b.convert('L')
-    #print(image_a)
-    array_a = np.array(image_a_L)
-    #print(array_a.shape)
-    array_b = np.array(image_b_L)
-    #print(array_a)
-    mask = np.full((m, n), True)
-    #print(mask.shape)
-    for c, c2 in zip(array_a, mask) :
-        for p, p2 in zip(c, c2) :
-            if 125 < p and p < 130 :
-                p2 = False
-            if p > 127 :
-                p = True
-            else :
-                p = False 
-            
-
-    for c, c2 in zip(array_b, mask) :
-        for p, p2 in zip(c, c2) :
-            if 125 < p and p < 130 :
-                p2 = False
-            if p > 127 :
-                p = True
-            else :
-                p = False 
-    '''
-    '''
-    image_a_L = cv2.cvtColor(image_a, cv2.COLOR_BGR2GRAY)
-    print(image_a_L)
-    image_b_L = cv2.cvtColor(image_b, cv2.COLOR_BGR2GRAY)
-    MTB_a = img2MTB(image_a_L)
-    MTB_b = img2MTB(image_b_L)
-    print(MTB_a)
-    mask = mask_gen(image_a_L, image_b_L)
-    '''
+    
     min_offset = (0, 0)
     min_loss = n * m
     for i in range(pre_shift[0] - 1, pre_shift[0] + 2) :
@@ -105,23 +68,10 @@ def alignment(image_a, image_b, n, m, k) :
 def padding(img, n, m, x, y):
     crop_img = img[y:m - y, x:n - x]
     img2 = cv2.copyMakeBorder(crop_img, y, y, x, x, cv2.BORDER_REFLECT)
-    '''
-    img2 = cv2.rectangle(img, (0, 0), (n - 1, y), (0, 0, 0) , -1)
-    img2 = cv2.rectangle(img2, (0, 0), (x, m - 1), (0, 0, 0) , -1)
-    img2 = cv2.rectangle(img2, (n - x - 1, 0), (n - 1, m - 1), (0, 0, 0) , -1)
-    img2 = cv2.rectangle(img2, (0, m - 1 - y), (n - 1, m - 1), (0, 0, 0) , -1)
-    '''
     return img2
 
 
-def main():
-    dir_name = 'image/'
-    os.makedirs(dir_name + 'align', exist_ok = True)
-    image_names = ['DSCF4452.jpg', 'DSCF4453.jpg', 'DSCF4454.jpg',  'DSCF4455.jpg', 'DSCF4456.jpg', 'DSCF4458.jpg', 'DSCF4459.jpg', 'DSCF4460.jpg', 'DSCF4461.jpg', 'DSCF4462.jpg']
-    images = []
-    for name in image_names:
-        tmpimg = cv2.imread(dir_name + name)
-        images.append(tmpimg)
+def alignment_main(images, save_dir):
     i = 0
     shifts = [(0, 0)]
     for img in images:
@@ -129,7 +79,6 @@ def main():
         if (i == 5) :
             continue
         shift = alignment(images[4], img, 6240, 4160, 7)
-        print('5, ', i, ': ', shift)
         shifts.append(shift)
     
     max_shift = (0, 0)
@@ -138,7 +87,7 @@ def main():
             max_shift = (abs(shift[0]), max_shift[1])
         if abs(shift[1]) > max_shift[1] :
             max_shift = (max_shift[0], abs(shift[1]))
-    print(max_shift)
+    #print(max_shift)
     
     i = 0
     shifted_img = []
@@ -148,36 +97,12 @@ def main():
         i += 1
     i = 0
     for img in shifted_img:
-        name = splitext(image_names[i])[0] + '_align' + '.jpg'
-        cv2.imwrite(dir_name + 'align/' + name, img)
+        name = (str(i+1) + '_align' + '.jpg')
+        cv2.imwrite(save_dir + '/' + name, img)
         i += 1
+    return shifted_img
     
-
-'''
-def main2():
-    dir_name = 'image/'
-    image_names = ['DSCF4452.jpg', 'DSCF4453.jpg', 'DSCF4454.jpg',  'DSCF4455.jpg', 'DSCF4456.jpg', 'DSCF4458.jpg', 'DSCF4459.jpg', 'DSCF4460.jpg', 'DSCF4461.jpg', 'DSCF4462.jpg']
-    images = []
-    for name in image_names:
-        tmpimg = Image.open(dir_name + name)
-        images.append(tmpimg)
-    i = 0
-    shifts = [(0, 0), (3, 3), (1, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0)]
-    max_shift = (0, 0)
-    for shift in shifts:
-        if shift[0] > max_shift[0] :
-            max_shift = (shift[0], max_shift[1])
-        if shift[1] > max_shift[1] :
-            max_shift = (max_shift[0], shift[1])
-    i = 0
-    for img, shift in zip(images, shifts):
-        img = img_cut(img, max_shift[0] - shift[0], max_shift[1] - shift[1], shift[0], shift[1])
-    for img in images:
-        name = splitext(image_names[i])[0] + '_' + str(i) + '.jpg'
-        img.save(dir_name + name)
-        i += 1
-'''
-main()
+    
 
 
 

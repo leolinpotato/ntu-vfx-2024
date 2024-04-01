@@ -10,6 +10,8 @@ import matplotlib.pyplot as plt
 import JBF
 import HDR
 import Reinhard
+import HDR_MitsuagaAndNayar as HDR_MAN
+import alignment
 
 def plot_HDR(E):
 	B, G, R = 0.06, 0.67, 0.27
@@ -20,7 +22,7 @@ def plot_HDR(E):
 	plt.yticks([])
 	plt.colorbar()
 	plt.tight_layout()
-	plt.savefig('result/hdr.png')
+	plt.savefig('../data/hdr.png')
 	plt.close()
 
 def plot_response_curve(g, l):
@@ -32,7 +34,7 @@ def plot_response_curve(g, l):
 	plt.xlabel('log exposure X')
 	plt.ylabel('pixel value Z')
 	plt.tight_layout()
-	plt.savefig(f'result/response_curve_{l}.png')
+	plt.savefig(f'../data/response_curve_{l}.png')
 	plt.close()
 
 def read_images(dir_path):
@@ -85,29 +87,44 @@ def image_show(image):
 
 ap = argparse.ArgumentParser()
 ap.add_argument('-a', '--align', dest='align', action="store_true", help='align or not')
+ap.add_argument('-d', '--hdr', dest='HDR', type=str, default="PaulDebevec", help='decide the HDR algorithm to be used')
 ap.add_argument('-t', '--tone-mapping', dest='toneMapping', type=str, default="no", help='decide the tone-mapping algorithm to be used')
 ap.add_argument('-g', '--ghost-removal', dest='ghostRemoval', action="store_true", help='ghost removal or not')
-ap.add_argument('-p', '--plot', dest='plot', type=bool, default=False, help='plot HDR and response_curve or not')
+ap.add_argument('-p', '--plot', dest='plot', action="store_true", help='plot HDR and response_curve (only for -d PaulDebevec option) or not')
 args = ap.parse_args()
 
 if __name__ == '__main__':
 	if args.align:
-		_, exposure_time = read_images("../data/image")
-		images, _ = read_images("../data/image/align")
+		images, exposure_time = read_images("../data/image")
+		images = alignment.alignment_main(images, "../data/image/align")
+		#images, _ = read_images("../data/image/align")
 	else:
 		images, exposure_time = read_images("../data/image")
 	images = reshape_images(images, 10)
 
 	# reconstruct HDR image
-	B = np.log(exposure_time)
-	w = [min(i, 256-i)/128 for i in range(256)]
-	l = 100
-	g = HDR.recover_response_curve(images, B, w, l)
-	E = HDR.recover_radiance_map(images, B, g, w, args.ghostRemoval)
-	cv2.imwrite("../data/HDR_images/hdr.hdr", E)
-	if args.plot:
-		plot_HDR(E)
-		plot_response_curve(g, l)
+	if args.HDR == "PaulDebevec":
+
+		B = np.log(exposure_time)
+		w = [min(i, 256-i)/128 for i in range(256)]
+		l = 100
+		g = HDR.recover_response_curve(images, B, w, l)
+		E = HDR.recover_radiance_map(images, B, g, w, args.ghostRemoval)
+		cv2.imwrite("../data/HDR_images/hdr_PaulDebevec.hdr", E)
+		if args.plot:
+			path = "../data/HDR_images/hdr_PaulDebevec.hdr"
+			plot_HDR(E)
+			plot_response_curve(g, l)
+	elif args.HDR == "MitsuagaNayar":
+		N = 50 # number of point selected
+		M = 5 # degree of polynomial, not exceed 10
+		w_x = 220 # the min of weight
+		E = HDR_MAN.MitsuagaAndNayar_HDR(images, N, M, w_x)
+		cv2.imwrite("../data/HDR_images/hdr_MitsuagaNayar.hdr", E)
+		if args.plot:
+			plot_HDR(E)
+
+		
 
 	# tone-mapping to LDR image
 	
