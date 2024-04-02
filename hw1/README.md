@@ -37,6 +37,7 @@ B11902174 陳璿修
 - pillow==10.2.0
 - pyparsing==3.1.2
 - python-dateutil==2.9.0.post0
+- scipy==1.12.0
 - six==1.16.0
 
 ## Run
