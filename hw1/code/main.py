@@ -88,7 +88,7 @@ def image_show(image):
 ap = argparse.ArgumentParser()
 ap.add_argument('-a', '--align', dest='align', action="store_true", help='align or not')
 ap.add_argument('-d', '--hdr', dest='HDR', type=str, default="PaulDebevec", help='decide the HDR algorithm to be used')
-ap.add_argument('-t', '--tone-mapping', dest='toneMapping', type=str, default="no", help='decide the tone-mapping algorithm to be used')
+ap.add_argument('-t', '--tone-mapping', dest='toneMapping', type=str, default="all", help='decide the tone-mapping algorithm to be used')
 ap.add_argument('-g', '--ghost-removal', dest='ghostRemoval', action="store_true", help='ghost removal or not')
 ap.add_argument('-p', '--plot', dest='plot', action="store_true", help='plot HDR and response_curve (only for -d PaulDebevec option) or not')
 args = ap.parse_args()
@@ -110,7 +110,7 @@ if __name__ == '__main__':
 		l = 100
 		g = HDR.recover_response_curve(images, B, w, l)
 		E = HDR.recover_radiance_map(images, B, g, w, args.ghostRemoval)
-		cv2.imwrite("../data/HDR_images/hdr_PaulDebevec.hdr", E)
+		# cv2.imwrite("../data/HDR_images/hdr_PaulDebevec.hdr", E)
 		if args.plot:
 			path = "../data/HDR_images/hdr_PaulDebevec.hdr"
 			plot_HDR(E)
@@ -120,7 +120,7 @@ if __name__ == '__main__':
 		M = 5 # degree of polynomial, not exceed 10
 		w_x = 220 # the min of weight
 		E = HDR_MAN.MitsuagaAndNayar_HDR(images, N, M, w_x)
-		cv2.imwrite("../data/HDR_images/hdr_MitsuagaNayar.hdr", E)
+		# cv2.imwrite("../data/HDR_images/hdr_MitsuagaNayar.hdr", E)
 		if args.plot:
 			plot_HDR(E)
 
@@ -134,8 +134,8 @@ if __name__ == '__main__':
 		local_output = Reinhard.local_operator(lm, 0.8)
 		image_show(global_output)
 		image_show(local_output)
-		cv2.imwrite(f"../data/tone_mapped_images/ReinhardGlobal.png", global_output)
-		cv2.imwrite(f"../data/tone_mapped_images/ReinhardLocal.png", local_output)
+		# cv2.imwrite(f"../data/tone_mapped_images/ReinhardGlobal.png", global_output)
+		# cv2.imwrite(f"../data/tone_mapped_images/ReinhardLocal.png", local_output)
 		
 
 	# OpenCV Reinhard
@@ -144,7 +144,7 @@ if __name__ == '__main__':
 		OpenCVReinhard = cv2.createTonemapReinhard(1.5, 0, 0.5, 0)
 		output = OpenCVReinhard.process(E)
 		image_show(output)
-		cv2.imwrite(f"../data/tone_mapped_images/OpenCVReinhard.png", output*255)
+		# cv2.imwrite(f"../data/tone_mapped_images/OpenCVReinhard.png", output*255)
 	
 	# OpenCV Drago
 	if args.toneMapping == "OpenCVDrago" or args.toneMapping == "all":
@@ -152,7 +152,7 @@ if __name__ == '__main__':
 		OpenCVDrago = cv2.createTonemapDrago(1.5, 1, 0.85)
 		output = OpenCVDrago.process(E)
 		image_show(output)
-		cv2.imwrite(f"../data/tone_mapped_images/OpenCVDrago.png", output*255)
+		# cv2.imwrite(f"../data/tone_mapped_images/OpenCVDrago.png", output*255)
 
 	# OpenCV Mantiuk
 	if args.toneMapping == "OpenCVMantiuk" or args.toneMapping == "all":
@@ -160,11 +160,11 @@ if __name__ == '__main__':
 		OpenCVMantiuk = cv2.createTonemapMantiuk(1.5, 0.7, 1)
 		output = OpenCVMantiuk.process(E)
 		image_show(output)
-		cv2.imwrite(f"../data/tone_mapped_images/OpenCVMantiuk.png", output*255)
+		# cv2.imwrite(f"../data/tone_mapped_images/OpenCVMantiuk.png", output*255)
 
 	# Hancraft Bilateral Filter
 	if args.toneMapping == "Bilateral" or args.toneMapping == "all":
 		bilateral_filter_output = JBF.bilateral_filter(E, 0.4, 5)
 		image_show(bilateral_filter_output)
-		cv2.imwrite(f"../data/tone_mapped_images/BilateralFilter.png", bilateral_filter_output)
+		# cv2.imwrite(f"../data/tone_mapped_images/BilateralFilter.png", bilateral_filter_output)
 	
