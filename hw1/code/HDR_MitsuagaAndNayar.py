@@ -101,16 +101,35 @@ def calculate_c(N, P, Z, M, R, Imax):
     c = np.append(c, cM)
     return c
     
-def pick(P, N, imgs):
+def pick(P, N, images):
+    #n, m = imgs[0].shape
+    '''
+    small_img = []
+    for i in range(P):
+        small_img.append(cv2.resize(imgs[i], (30, 20)))
+    '''
+    '''
     Z = np.zeros((N, P))
     random.seed()
     for i in range(0, N):
         
-        x = random.randint(0, N)
-        y = random.randint(0, P)
+        x = random.randint(0, n-1)
+        y = random.randint(0, m-1)
         for j in range(0, P):
             Z[i][j] = imgs[j][x][y]
     Z = Z.astype('int64')
+    return Z
+    '''
+    width, height = 30, 20
+    down_sample = []
+    for image in images:
+        down_sample.append(cv2.resize(image, (width, height)))
+    down_sample = np.array(down_sample)
+    Z = np.zeros((N, P)).astype(int)
+    for i in range(N):
+        r, c = i//(width//2)+height//4, i%(width//2)+width//4
+        for j in range(P):
+            Z[i,j] = down_sample[j,r,c]
     return Z
 
 def calculate_hdr(images, N, M, P, mode, w_x):
@@ -153,9 +172,12 @@ def calculate_hdr(images, N, M, P, mode, w_x):
         exposure_time[i] = exposure_time[i - 1] * R[i - 1]
     f_t = [f(c, M, i) for i in range(256)]
     f_d_t = [f_d(c, M, i) for i in range(256)]
+    
     w = [(i) for i in range(256)]
     for i in range(256):
         w[i] = ((i - w_x))**2
+    
+    #w = [(f_t[i] / f_d_t[i]) for i in range(256)]
     #plt.plot(w, "green")
     for i in range(0, n):
         for j in range(0, m):

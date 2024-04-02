@@ -116,7 +116,7 @@ if __name__ == '__main__':
 			plot_HDR(E)
 			plot_response_curve(g, l)
 	elif args.HDR == "MitsuagaNayar":
-		N = 50 # number of point selected
+		N = 600 // 4 # number of point selected
 		M = 5 # degree of polynomial, not exceed 10
 		w_x = 220 # the min of weight
 		E = HDR_MAN.MitsuagaAndNayar_HDR(images, N, M, w_x)
