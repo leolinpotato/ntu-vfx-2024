@@ -1,5 +1,5 @@
 *.DS_Store
-hw1/data
-hw1/result
+hw*/data
+hw*/result
 *__pycache__
 lec*
