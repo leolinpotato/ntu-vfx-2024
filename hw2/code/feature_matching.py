@@ -4,6 +4,8 @@ from scipy.spatial.distance import cdist
 
 from utils import *
 
+# match   : a list of descriptor pairs
+# match_id: a list of match pairs' corresponding ids
 def feature_matching(test_descriptors, train_descriptors):
 	test_desc = [test_descriptor['descriptor'] for test_descriptor in test_descriptors]
 	train_desc = [train_descriptor['descriptor'] for train_descriptor in train_descriptors]

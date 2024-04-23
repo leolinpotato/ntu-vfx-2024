@@ -46,7 +46,7 @@ def orientation_assignment(image, keypoints):
 
 	return new_keypoints, orientations
 
-
+# descriptors: a dict with 2-d point position and a 128 dimensional descriptor
 def SIFT_descriptor(image, keypoints):
 	h, w, _ = image.shape
 	keypoints, orientations = orientation_assignment(image, keypoints)
@@ -57,6 +57,7 @@ def SIFT_descriptor(image, keypoints):
 
 	for idx in range(len(keypoints)):
 		y, x = keypoints[idx]
+		x, y = int(x), int(y)
 		if (x-8 < 0) or (x+8 > w) or (y-8 < 0) or (y+8 > h):
 			continue
 		descriptor = []

@@ -2,6 +2,8 @@ import numpy as np
 import cv2
 import os
 import natsort
+import copy
+
 
 def image_show(image):
 	cv2.imshow("image", image)
@@ -51,3 +53,30 @@ def normalize(n):
 	if (norm == 0):
 		return n
 	return n / norm
+
+def plot_keypoints(image, keypoints):
+	highlight_image = copy.deepcopy(image)
+	for point in keypoints:
+		x, y = point
+		highlight_image[x-1:x+2, y-1:y+2] = [0, 0, 255]
+	image_show(highlight_image)
+
+def top_n_values_with_indices(arr, n):
+    # Flatten the array
+    flattened_arr = arr.flatten()
+    
+    # Sort the flattened array in descending order
+    sorted_indices = np.argsort(flattened_arr)[::-1]
+    
+    # Get the top n indices
+    top_n_indices = sorted_indices[:n]
+    
+    # Get the top n values
+    top_n_values = flattened_arr[top_n_indices]
+    
+    # Get the row and column indices corresponding to the flattened indices
+    row_indices, col_indices = np.unravel_index(top_n_indices, arr.shape)
+    
+    # Combine row and column indices
+    positions = np.column_stack((row_indices, col_indices))
+    return positions

@@ -3,6 +3,7 @@ import cv2
 import os
 import natsort
 import argparse
+import time
 
 from utils import *
 from feature_detection import *
@@ -13,22 +14,21 @@ ap = argparse.ArgumentParser()
 ap.add_argument('-d', '--dir', dest='dir', type=str, default="../data/test", help='the input image directory')
 args = ap.parse_args()
 
-def keypoints_descriptors(image, type='Train'):
-	keypoints = Harris_detection(image)
-	descriptors = SIFT_descriptor(image, keypoints)
-	print(f"{type} keypoints: ", len(keypoints))
-	print(f"{type} descriptor:", len(descriptors))
-	return keypoints, descriptors
-
 if __name__ == '__main__':
 	images = read_images(args.dir)
 
-	train_image = reshape_image(images[2], 10)
-	train_keypoints, train_descriptors = keypoints_descriptors(train_image, 'Train')
+	train_image = reshape_image(images[0], 10)
+	train_keypoints = MultiScale_Harris_detection(train_image)
+	train_descriptors = SIFT_descriptor(train_image, train_keypoints)
+	print(f"Train keypoints: ", len(train_keypoints))
+	print(f"Train descriptor:", len(train_descriptors))
 
-	test_image = reshape_image(images[3], 10)
-	test_keypoints, test_descriptors = keypoints_descriptors(test_image, 'Test')
-	
+	test_image = reshape_image(images[1], 10)
+	test_keypoints = MultiScale_Harris_detection(test_image)
+	test_descriptors = SIFT_descriptor(test_image, test_keypoints)
+	print(f"Test keypoints: ", len(test_keypoints))
+	print(f"Test descriptor:", len(test_descriptors))	
+
 	matches, matches_id = feature_matching(test_descriptors, train_descriptors)
 	print("Match:", len(matches))
 
