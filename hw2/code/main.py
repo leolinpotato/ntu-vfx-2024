@@ -48,7 +48,7 @@ if __name__ == '__main__':
 	#imgs_cylinder = images_to_cylinder(images, focal_lengths)
 	#show_ransac(imgs_cylinder[0], imgs_cylinder[1])
 	images_reshape = [reshape_image(img, 4) for img in images]
-	images_reshape.reverse()
+	#images_reshape.reverse()
 	'''
 	for i in range(len(images_reshape)-1) :
 		show_ransac(images_reshape[i], images_reshape[i + 1])
