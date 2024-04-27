@@ -62,7 +62,6 @@ def MultiScale_Harris_detection(image, scale=2, sigma=1, n=5, threshold=10):
 	for i in range(1, n):
 		gaussian_images.append(cv2.GaussianBlur(image, kernel, sigma**i))
 
-
 	keypoints = []
 	total_R = np.zeros((h, w))
 	for i in range(n):
@@ -86,7 +85,6 @@ def MultiScale_Harris_detection(image, scale=2, sigma=1, n=5, threshold=10):
 	# 		neighbor = R[i-1:i+2, j-1:j+2]
 	# 		if (pixel > threshold) and ((pixel >= neighbor).all()):
 	# 			keypoints.append([i, j])
-
 	plot_keypoints(image, keypoints)
 
 	return keypoints
