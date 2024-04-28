@@ -19,7 +19,7 @@ def hth2xy(th, h, f):
 
 def image_to_cylinder(image, f):
     y, x, _ = image.shape
-    s = f * 1.5
+    s = f
     x_max = int(s * math.atan((x / 2) / f)) * 2
     y_max = int(s * y / f)
     blank = np.zeros((y_max, x_max,3), dtype=np.uint8)
@@ -50,6 +50,9 @@ def image_to_cylinder(image, f):
 
 def images_to_cylinder(images, focal_lengths):
     cylinder_imgs = []
+    i = 0
     for image, f in zip(images, focal_lengths):
         cylinder_imgs.append(image_to_cylinder(image, f))
+        print("finish", i)
+        i += 1
     return cylinder_imgs
