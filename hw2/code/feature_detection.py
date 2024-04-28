@@ -4,7 +4,7 @@ import copy
 
 from utils import *
 
-def Harris_detection(image, k=0.04, threshold=0.001):
+def get_matrix(image):
 	# 1. Compute x and y derivatives of image
 	gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 	kernel = (5, 5)
@@ -21,6 +21,10 @@ def Harris_detection(image, k=0.04, threshold=0.001):
 	Sxx = cv2.GaussianBlur(Ixx, kernel, 0)
 	Syy = cv2.GaussianBlur(Iyy, kernel, 0)
 	Sxy = cv2.GaussianBlur(Ixy, kernel, 0)
+	return Sxx, Sxy, Syy
+
+def Harris_detection(image, k=0.04, threshold=0.001):
+	Sxx, Sxy, Syy = get_matrix(image)
 
 	# 4. Define the matrix at each pixel
 	# 5. Compute the response of the detect at each pixel
@@ -32,7 +36,7 @@ def Harris_detection(image, k=0.04, threshold=0.001):
 	# 6. Threshold on value of R; compute nonmax suppresion
 	sigma = R.max()*threshold
 	keypoints = []
-	h, w = gray_image.shape
+	h, w, _ = image.shape
 	for i in range(1, h - 1):
 		for j in range(1, w - 1):
 			pixel = R[i, j]
@@ -70,12 +74,6 @@ def MultiScale_Harris_detection(image, scale=2, sigma=1, n=5, threshold=10):
 
 	keypoints = non_maximal_suppression(R)
 
-	# for i in range(1, h - 1):
-	# 	for j in range(1, w - 1):
-	# 		pixel = R[i, j]
-	# 		neighbor = R[i-1:i+2, j-1:j+2]
-	# 		if (pixel > threshold) and ((pixel >= neighbor).all()):
-	# 			keypoints.append([i, j])
 	plot_keypoints(image, keypoints)
 
 	return keypoints
