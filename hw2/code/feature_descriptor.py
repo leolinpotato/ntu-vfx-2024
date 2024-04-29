@@ -5,7 +5,6 @@ import time
 from utils import *
 
 def get_magnitude_theta(image):
-	st = time.time()
 	gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 	
 	kernel = (5, 5)
@@ -58,6 +57,7 @@ def SIFT_descriptor(image, keypoints):
 	descriptors = []
 	bins = 8
 	bin_size = 360 / bins
+
 	for idx in range(len(keypoints)):
 		y, x = keypoints[idx]
 		x, y = int(x), int(y)

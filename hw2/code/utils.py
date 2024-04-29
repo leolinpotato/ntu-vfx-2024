@@ -62,7 +62,6 @@ def plot_keypoints(image, keypoints):
 		x, y = point
 		highlight_image[x-sz:x+sz+1, y-sz:y+sz+1] = [0, 0, 255]
 	image_show(highlight_image)
-	cv2.imwrite("../result/duck.png", highlight_image)
 
 def top_n_values_with_indices(arr, n):
     # Flatten the array

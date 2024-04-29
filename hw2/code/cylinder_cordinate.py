@@ -1,8 +1,5 @@
 import numpy as np
 import cv2
-import os
-import natsort
-import argparse
 import math
 
 from utils import *

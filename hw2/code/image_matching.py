@@ -1,8 +1,5 @@
 import numpy as np
 import cv2
-import os
-import natsort
-import argparse
 import math
 
 from utils import *
@@ -178,8 +175,8 @@ def ransac(x, matches, matches_id):
     #img1_keypoints = Harris_detection(img1)
     #img2_keypoints = Harris_detection(img2)
     '''
-    img1_keypoints, img1_descriptors = keypoints_descriptors(img1, 'img1')
-    img2_keypoints, img2_descriptors = keypoints_descriptors(img2, 'img2')
+    img1_keypoints, img1_descriptors = keypoints_descriptors(img1)
+    img2_keypoints, img2_descriptors = keypoints_descriptors(img2)
     #img1_descriptors = SIFT_descriptor(img1, img1_keypoints)
     #img2_descriptors = SIFT_descriptor(img2, img2_keypoints)
     matches, matches_id = feature_matching(img1_descriptors, img2_descriptors)
@@ -254,7 +251,7 @@ def image_matching(images, cheat=True):
     images_ = images
     images_descriptors = []
     for img in images :
-        img_keypoints, img_descriptors = keypoints_descriptors(img, 'img1')
+        img_keypoints, img_descriptors = keypoints_descriptors(img)
         images_descriptors.append(img_descriptors)
     for i in range(N):
         #img1 = images[i]
@@ -296,7 +293,7 @@ def image_matching(images, cheat=True):
             for j in range(len(images)):
                 if (i != j) :
                     img2 = images[j]
-                    img2_keypoints, img2_descriptors = keypoints_descriptors(img2, 'img2')
+                    img2_descriptors = images_descriptors[j]
                     mt, mt_id = feature_matching(img1_descriptors, img2_descriptors)
                     this_img_mt.append((mt, mt_id, j))
             this_img_mt.sort(key = len_1d, reverse = True)
@@ -330,10 +327,10 @@ def show_ransac(train_image, test_image):
     #images = read_images(dir)
 
     #train_image = reshape_image(images[0], 3)
-    train_keypoints, train_descriptors = keypoints_descriptors(train_image, 'Train')
+    train_keypoints, train_descriptors = keypoints_descriptors(train_image)
 
     #test_image = reshape_image(images[1], 3)
-    test_keypoints, test_descriptors = keypoints_descriptors(test_image, 'Test')
+    test_keypoints, test_descriptors = keypoints_descriptors(test_image)
 
     mt, mt_id = feature_matching(test_descriptors, train_descriptors)
     print("num_mt:", len(mt))
