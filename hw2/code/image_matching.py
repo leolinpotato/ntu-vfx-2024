@@ -296,7 +296,7 @@ def image_matching(images, cheat=True):
             for j in range(len(images)):
                 if (i != j) :
                     img2 = images[j]
-                    img2_keypoints, img2_descriptors = keypoints_descriptors(img2, 'img2')
+                    img2_descriptors = images_descriptors[j]
                     mt, mt_id = feature_matching(img1_descriptors, img2_descriptors)
                     this_img_mt.append((mt, mt_id, j))
             this_img_mt.sort(key = len_1d, reverse = True)

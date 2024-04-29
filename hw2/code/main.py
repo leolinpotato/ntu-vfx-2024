@@ -35,7 +35,7 @@ def read_focal(n, ratio, dir="../data/test/focal_length.txt"):
 		#print(tmp)
 		i = int(tmp[0])
 		fl = float(tmp[1])
-		focal_lengths[i] = 4600 / ratio
+		focal_lengths[i] = 4700 / ratio
 	return focal_lengths
 
 if __name__ == '__main__':
@@ -46,20 +46,24 @@ if __name__ == '__main__':
 	ratio = 10
 	focal_lengths = read_focal(len(images), ratio)
 	images_reshape = [reshape_image(img, ratio) for img in images]
-	#image_show(image_to_cylinder(images_reshape[0], focal_lengths[0] * 9 / ratio))
+	i = 0
+	'''
+	for img in images_reshape:
+		cv2.imwrite('compress/img_'+ str(i) + '.jpg', img)
+		i += 1
+	'''
+	#image_show(image_to_cylinder(images_reshape[0], focal_lengths[0]))
 	#images_reshape = [reshape_image(img, ratio) for img in images]
 	images_cylinder = images_to_cylinder(images_reshape, focal_lengths)
 	
 	
-	'''
-	for i in range(len(images_reshape)-1) :
-		if (i > 12):
-			show_ransac(images_reshape[i], images_reshape[i + 1])
 	
+	'''
 	for img in images_cylinder:
 		image_show(img)
+		'''
 	#image_show(images_cylinder[0])
-	'''
+	
 	
 	blending(images_cylinder)
 	

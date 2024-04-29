@@ -31,7 +31,15 @@ def blending(images):
     
     images.append(images[0])
     images_matching = image_matching(images, cheat=True)
-    shape_y, shape_x, _ = images[0].shape
+    shape_x = 100000000
+    shape_y = 100000000
+    for img in images:
+        b, a, _ = img.shape
+        if (b < shape_y):
+            shape_y = b
+        if (a < shape_x):
+            shape_x = a
+    #shape_y, shape_x, _ = images[0].shape
     
     A = np.identity(3)
     i = 0
