@@ -1,18 +1,25 @@
 import numpy as np
 import cv2
+import time
 
 from utils import *
 
 def get_magnitude_theta(image):
+	st = time.time()
 	gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+	
 	kernel = (5, 5)
 	GI = cv2.GaussianBlur(gray_image, kernel, 0)
 	Iy, Ix = np.gradient(GI)
+	#print("the flag1", time.time() - st)
 
 	magnitude = np.sqrt(Ix**2 + Iy**2)
+	#print("the flag2", time.time() - st)
 	theta = np.arctan2(Ix, Iy)*180/np.pi
+	#print("the flag3", time.time() - st)
 	# theta is between -180 to 180, so needs to be normalized to 0 to 360
 	theta[theta<0] = theta[theta<0]+360
+	#print("gt theta:", time.time() - st)
 
 	return magnitude, theta
 
@@ -43,7 +50,6 @@ def orientation_assignment(image, keypoints):
 			if his >= peak*0.8:
 				new_keypoints.append(point)
 				orientations.append(i*bin_size)
-
 	return new_keypoints, orientations
 
 # descriptors: a dict with 2-d point position and a 128 dimensional descriptor
@@ -54,13 +60,17 @@ def SIFT_descriptor(image, keypoints):
 	descriptors = []
 	bins = 8
 	bin_size = 360 / bins
-
+	print("keypoint num:", len(keypoints))
+	k = 0
 	for idx in range(len(keypoints)):
+		k += 1
 		y, x = keypoints[idx]
 		x, y = int(x), int(y)
 		if (x-8 < 0) or (x+8 > w) or (y-8 < 0) or (y+8 > h):
 			continue
 		descriptor = []
+		st = time.time()
+		
 		image_rotation = rotate_image(image, -orientations[idx], (x, y))
 		magnitude, theta = get_magnitude_theta(image_rotation)
 		for i in range(y-8, y+8, 4):

@@ -193,7 +193,7 @@ def ransac(x, matches, matches_id):
     best_inliers = []
     best_inliers_match = []
     best_shift = []
-    tolerence = x / 15 # tolerence
+    tolerence = x/15 # tolerence
     print("tol:", tolerence)
     for i in range(k):
         np.random.shuffle(mt_copy)
@@ -244,39 +244,41 @@ def x_in_y(x, y):
         return True
     return False
 
-def image_matching(images, cheat=False):
+def image_matching(images, cheat=True):
     # match images 
     # reture list of list of tuple (matches, matches_id, j, best_inlier, best_shift)
-    i = 0
     m = 6
-    shape_x, shape_y, _ = images[0].shape
+    N = len(images)
+    shape_y, shape_x, _ = images[0].shape
     imgs_matched = []
     images_ = images
-    
-    for img1 in images:
+    images_descriptors = []
+    for img in images :
+        img_keypoints, img_descriptors = keypoints_descriptors(img, 'img1')
+        images_descriptors.append(img_descriptors)
+    for i in range(N):
+        #img1 = images[i]
         this_img_mt = []
         j = 0
         n = len(images)
-        img1_keypoints, img1_descriptors = keypoints_descriptors(img1, 'img1')
+        img1_descriptors = images_descriptors[i]
         if (cheat):
-            for j in range(len(images)):
-                if (i != j and ((i + 1) % n == j)) :
-                    img2 = images[j]
-                    img2_keypoints, img2_descriptors = keypoints_descriptors(img2, 'img2')
-                    #print(img1_descriptors)
-                    #print(img2_descriptors)
-                    mt, mt_id = feature_matching(img2_descriptors, img1_descriptors)
-                    
-                    #print("match", i, j, len(mt))
-                    this_img_mt.append((mt, mt_id, j))
-                    j += 1
+            j = (i + 1) % N
+            img2 = images[j]
+            img2_descriptors = images_descriptors[j]
+            #print(img1_descriptors)
+            #print(img2_descriptors)
+            mt, mt_id = feature_matching(img2_descriptors, img1_descriptors)
+            #print("match", i, j, len(mt))
+            this_img_mt.append((mt, mt_id, j))
             candidate_best_inlier = []
             for candidate in this_img_mt:
                 matches, matches_id, j = candidate
-                best_inlier, best_shift = ransac(images[j].shape[1], matches, matches_id)
+                best_inlier, best_shift = ransac(shape_x, matches, matches_id)
                 if (len(best_shift) == 0):
                     print("skipped", i, j)
                     continue
+                '''
                 nf = 0
                 ni = len(best_inlier)
                 for mt in matches:
@@ -286,6 +288,7 @@ def image_matching(images, cheat=False):
                     project_point = np.matmul(best_shift, point_cand)
                     if x_in_y(project_point, (shape_x, shape_y)) :
                         nf += 1
+                '''
                 print("accept", i, j)
                 candidate_best_inlier.append((matches, matches_id, j, best_inlier, best_shift))
                 
@@ -296,7 +299,6 @@ def image_matching(images, cheat=False):
                     img2_keypoints, img2_descriptors = keypoints_descriptors(img2, 'img2')
                     mt, mt_id = feature_matching(img1_descriptors, img2_descriptors)
                     this_img_mt.append((mt, mt_id, j))
-                    j += 1
             this_img_mt.sort(key = len_1d, reverse = True)
             candidate_best_inlier = []
             for candidate in this_img_mt[0:6]:
@@ -321,7 +323,6 @@ def image_matching(images, cheat=False):
                     print("reject", i, j)
         
         imgs_matched.append(candidate_best_inlier)
-        i += 1
     return imgs_matched
     
 

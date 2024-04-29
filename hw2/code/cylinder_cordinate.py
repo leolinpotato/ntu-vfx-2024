@@ -37,9 +37,10 @@ def image_to_cylinder(image, f):
     '''
     for i in range(x_max):
         for j in range(y_max):
-            from_x, from_y = hth2xy((i - x_max / 2)/s, j/s, f)
+            from_x, from_y = hth2xy((i - x_max / 2)/s, (j - y_max / 2)/s, f)
             from_x += int(x / 2)
-            if from_x >= x or from_y >= y:
+            from_y += int(y / 2)
+            if from_x >= x or from_y >= y or from_x < 0 or from_y < 0:
                 continue
             blank[j][i] = image[int(from_y)][int(from_x)]
 

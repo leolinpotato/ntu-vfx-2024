@@ -17,7 +17,7 @@ ap.add_argument('-d', '--dir', dest='dir', type=str, default="../data/test", hel
 args = ap.parse_args()
 
 def keypoints_descriptors(image, type='Train'):
-	keypoints = Harris_detection(image, threshold = 0.1)
+	keypoints = MultiScale_Harris_detection(image)
 	descriptors = SIFT_descriptor(image, keypoints)
 	#print(f"{type} keypoints: ", len(keypoints))
 	#print(f"{type} descriptor:", len(descriptors))
@@ -42,11 +42,35 @@ if __name__ == '__main__':
 	##show_ransac(args.dir)
 	
 	images = read_images(args.dir)
-	#image_to_cylinder(images[0], 704.867)
 	#read focal length
 	focal_lengths = read_focal(len(images))
-	#images_reshape = [reshape_image(img, 3) for img in images]
-	#imgs_cylinder = images_to_cylinder(images_reshape, focal_lengths)
+	images_reshape = [reshape_image(img, 1) for img in images]
+	images_cylinder = images_to_cylinder(images_reshape, focal_lengths)
+	
+	'''
+	for i in range(len(images_reshape)-1) :
+		if (i > 12):
+			show_ransac(images_reshape[i], images_reshape[i + 1])
+	
+	for img in images_cylinder:
+		image_show(img)
+	#image_show(images_cylinder[0])
+	'''
+	blending(images_cylinder)
+	'''
+	show_ransac(images_reshape[0], images_reshape[1])
+	images_matching = image_matching(images_reshape, cheat = True)
+	for img_match in images_matching:
+		print("len:", len(img_match))
+	print("total_img:", len(images_matching))
+	'''
+	
+	'''
+	for img_mt in images_matching:
+		print(img_mt)
+		print(len(img_mt))
+		'''
+	'''
 	train_image = reshape_image(images[1], 3)
 	train_keypoints, train_descriptors = keypoints_descriptors(train_image, 'Train')
 	test_image = reshape_image(images[2], 3)
@@ -71,25 +95,4 @@ if __name__ == '__main__':
 	#show_ransac(imgs_cylinder[0], imgs_cylinder[1])
 	#images_reshape = [reshape_image(img, 30) for img in imgs_cylinder]
 	#images_reshape.reverse()
-	'''
-	for i in range(len(images_reshape)-1) :
-		if (i > 12):
-			show_ransac(images_reshape[i], images_reshape[i + 1])
-	'''
-	blending(imgs_cylinder)
-	'''
-	show_ransac(images_reshape[0], images_reshape[1])
-	images_matching = image_matching(images_reshape, cheat = True)
-	for img_match in images_matching:
-		print("len:", len(img_match))
-	print("total_img:", len(images_matching))
-	'''
-	
-	'''
-	for img_mt in images_matching:
-		print(img_mt)
-		print(len(img_mt))
-		'''
-	'''
-	c
 	'''
