@@ -1,5 +1,6 @@
 import numpy as np
 import cv2
+import time
 
 from utils import *
 
@@ -8,9 +9,9 @@ def get_magnitude_theta(image):
 	kernel = (5, 5)
 	GI = cv2.GaussianBlur(gray_image, kernel, 0)
 	Iy, Ix = np.gradient(GI)
-
 	magnitude = np.sqrt(Ix**2 + Iy**2)
 	theta = np.arctan2(Ix, Iy)*180/np.pi
+
 	# theta is between -180 to 180, so needs to be normalized to 0 to 360
 	theta[theta<0] = theta[theta<0]+360
 
