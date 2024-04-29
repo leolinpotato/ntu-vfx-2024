@@ -43,12 +43,12 @@ def Harris_detection(image, k=0.04, threshold=0.001):
 			neighbor = R[i-1:i+2, j-1:j+2]
 			if (pixel > sigma) and ((pixel >= neighbor).all()):
 				keypoints.append([i, j])
-	
-	# plot_keypoints(image, keypoints)
+
+	plot_keypoints(image, keypoints)
 
 	return keypoints
 
-def MultiScale_Harris_detection(image, scale=2, sigma=1, n=5, threshold=10):
+def MultiScale_Harris_detection(image, scale=2, sigma=1, n=5, threshold=0.001):
 	h, w, _ = image.shape
 	# multi-scale
 	kernel = (0, 0)
@@ -74,7 +74,7 @@ def MultiScale_Harris_detection(image, scale=2, sigma=1, n=5, threshold=10):
 
 	keypoints = non_maximal_suppression(R)
 
-	# plot_keypoints(image, keypoints)
+	plot_keypoints(image, keypoints)
 
 	return keypoints
 

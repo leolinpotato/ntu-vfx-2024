@@ -5,15 +5,19 @@ import time
 from utils import *
 
 def get_magnitude_theta(image):
+	st = time.time()
 	gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+	
 	kernel = (5, 5)
 	GI = cv2.GaussianBlur(gray_image, kernel, 0)
 	Iy, Ix = np.gradient(GI)
+
 	magnitude = np.sqrt(Ix**2 + Iy**2)
 	theta = np.arctan2(Ix, Iy)*180/np.pi
 
 	# theta is between -180 to 180, so needs to be normalized to 0 to 360
 	theta[theta<0] = theta[theta<0]+360
+	#print("gt theta:", time.time() - st)
 
 	return magnitude, theta
 
@@ -44,7 +48,6 @@ def orientation_assignment(image, keypoints):
 			if his >= peak*0.8:
 				new_keypoints.append(point)
 				orientations.append(i*bin_size)
-
 	return new_keypoints, orientations
 
 # descriptors: a dict with 2-d point position and a 128 dimensional descriptor
@@ -55,13 +58,14 @@ def SIFT_descriptor(image, keypoints):
 	descriptors = []
 	bins = 8
 	bin_size = 360 / bins
-
 	for idx in range(len(keypoints)):
 		y, x = keypoints[idx]
 		x, y = int(x), int(y)
 		if (x-8 < 0) or (x+8 > w) or (y-8 < 0) or (y+8 > h):
 			continue
 		descriptor = []
+		st = time.time()
+		
 		image_rotation = rotate_image(image, -orientations[idx], (x, y))
 		magnitude, theta = get_magnitude_theta(image_rotation)
 		for i in range(y-8, y+8, 4):
@@ -76,4 +80,16 @@ def SIFT_descriptor(image, keypoints):
 		descriptor[descriptor>0.2] = 0.2
 		descriptor = normalize(descriptor)
 		descriptors.append({'point': (x, y), 'descriptor': descriptor})
+	return descriptors
+
+def neighbor_descriptor(image, keypoints):
+	h, w, _ = image.shape
+	gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+	descriptors = []
+	for idx in range(len(keypoints)):
+		y, x = keypoints[idx]
+		if x == 0 or x == w-1 or y == 0 or y == h-1:
+			continue
+		descriptors.append({'point': (x, y), 'descriptor': gray_image[y-1:y+1, x-1:x+1]})
 	return descriptors

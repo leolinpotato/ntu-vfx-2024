@@ -147,27 +147,53 @@ def alignment_affine_no_turn(matches):
     #print(ret_m)
     return ret_m
 
-
+def find_shift(matches):
+    '''
+    align two images by its matching using matrix
+    1 0 a
+    0 1 b
+    0 0 1
+    '''
+    N = len(matches)
+    A = np.zeros((N * 2, 4))
+    b = np.zeros(N * 2)
+    avg_x = 0
+    avg_y = 0
+    for match in matches:
+        x1 = match[0]['point'][0]
+        y1 = match[0]['point'][1]
+        x2 = match[1]['point'][0]
+        y2 = match[1]['point'][1]
+        #A[i][1] = match[0]['point'][1]
+        avg_x += x2 - x1
+        avg_y += y2 - y1
+    avg_x /= N
+    avg_y /= N
+    ret_m = [[1, 0, avg_x], [0, 1, avg_y], [0, 0, 1]]
+    #print(ret_m)
+    return ret_m
     
-def ransac(img1, img2):
+def ransac(x, matches, matches_id):
     #use ransac to find best inlier and shift for two images
     #img1_keypoints = Harris_detection(img1)
     #img2_keypoints = Harris_detection(img2)
+    '''
     img1_keypoints, img1_descriptors = keypoints_descriptors(img1, 'img1')
     img2_keypoints, img2_descriptors = keypoints_descriptors(img2, 'img2')
     #img1_descriptors = SIFT_descriptor(img1, img1_keypoints)
     #img2_descriptors = SIFT_descriptor(img2, img2_keypoints)
     matches, matches_id = feature_matching(img1_descriptors, img2_descriptors)
+    '''
     #print("mtsize:", len(matches))
     mt_copy = matches
     np.random.shuffle(mt_copy)
-    k = 1000 #time of iteration for ransac
+    k = 300 #time of iteration for ransac
     n = 3 #num of point select a time
     max_cnt = 0
     best_inliers = []
     best_inliers_match = []
     best_shift = []
-    tolerence = img1.shape[1] / 15 # tolerence
+    tolerence = x/15 # tolerence
     print("tol:", tolerence)
     for i in range(k):
         np.random.shuffle(mt_copy)
@@ -180,21 +206,8 @@ def ransac(img1, img2):
             #x_max = img1.shpae[2]
             average_length += x1 - x2
         average_length /= n
-        tol1 = 1
-        out = False
-        for mt in mt_arg:
-            x1, y1 = mt[0]['point']
-            x2, y2 = mt[1]['point']
-            if abs(average_length - (x1-x2)) > tol1:
-                out = True
-                #print("skip")
-                break
-            #print("pass", x1, y1, x2, y2)
-        #print("------")
-        if (out):
-            continue
             
-        shift = alignment_affine(mt_arg)
+        shift = find_shift(mt_arg)
         shift = np.array(shift)
         inlier_cnt = 0
         inliers = []
@@ -220,7 +233,7 @@ def ransac(img1, img2):
             best_shift = shift
     #print(best_shift)
     
-    best_shift = alignment_affine_no_turn(best_inliers_match)
+    best_shift = find_shift(best_inliers_match)
     return best_inliers, best_shift
 def len_1d(pair):
     a, b, c = pair
@@ -231,35 +244,41 @@ def x_in_y(x, y):
         return True
     return False
 
-def image_matching(images, cheat=False):
+def image_matching(images, cheat=True):
     # match images 
     # reture list of list of tuple (matches, matches_id, j, best_inlier, best_shift)
-    i = 0
     m = 6
-    shape_x, shape_y, _ = images[0].shape
+    N = len(images)
+    shape_y, shape_x, _ = images[0].shape
     imgs_matched = []
     images_ = images
-    for img1 in images:
+    images_descriptors = []
+    for img in images :
+        img_keypoints, img_descriptors = keypoints_descriptors(img, 'img1')
+        images_descriptors.append(img_descriptors)
+    for i in range(N):
+        #img1 = images[i]
         this_img_mt = []
         j = 0
         n = len(images)
-        img1_keypoints, img1_descriptors = keypoints_descriptors(img1, 'img1')
+        img1_descriptors = images_descriptors[i]
         if (cheat):
-            for j in range(len(images)):
-                if (i != j and ((j + 1) % n == i or (i + 1) % n == j)) :
-                    img2 = images[j]
-                    img2_keypoints, img2_descriptors = keypoints_descriptors(img2, 'img2')
-                    mt, mt_id = feature_matching(img1_descriptors, img2_descriptors)
-                    #print("match", i, j, len(mt))
-                    this_img_mt.append((mt, mt_id, j))
-                    j += 1
+            j = (i + 1) % N
+            img2 = images[j]
+            img2_descriptors = images_descriptors[j]
+            #print(img1_descriptors)
+            #print(img2_descriptors)
+            mt, mt_id = feature_matching(img2_descriptors, img1_descriptors)
+            #print("match", i, j, len(mt))
+            this_img_mt.append((mt, mt_id, j))
             candidate_best_inlier = []
             for candidate in this_img_mt:
                 matches, matches_id, j = candidate
-                best_inlier, best_shift = ransac(images[j], img1)
+                best_inlier, best_shift = ransac(shape_x, matches, matches_id)
                 if (len(best_shift) == 0):
                     print("skipped", i, j)
                     continue
+                '''
                 nf = 0
                 ni = len(best_inlier)
                 for mt in matches:
@@ -269,6 +288,7 @@ def image_matching(images, cheat=False):
                     project_point = np.matmul(best_shift, point_cand)
                     if x_in_y(project_point, (shape_x, shape_y)) :
                         nf += 1
+                '''
                 print("accept", i, j)
                 candidate_best_inlier.append((matches, matches_id, j, best_inlier, best_shift))
                 
@@ -279,7 +299,6 @@ def image_matching(images, cheat=False):
                     img2_keypoints, img2_descriptors = keypoints_descriptors(img2, 'img2')
                     mt, mt_id = feature_matching(img1_descriptors, img2_descriptors)
                     this_img_mt.append((mt, mt_id, j))
-                    j += 1
             this_img_mt.sort(key = len_1d, reverse = True)
             candidate_best_inlier = []
             for candidate in this_img_mt[0:6]:
@@ -304,7 +323,6 @@ def image_matching(images, cheat=False):
                     print("reject", i, j)
         
         imgs_matched.append(candidate_best_inlier)
-        i += 1
     return imgs_matched
     
 
@@ -321,7 +339,7 @@ def show_ransac(train_image, test_image):
     print("num_mt:", len(mt))
     #print(image_matching(train_image, test_image))
 
-    ransac_match, _ = ransac(test_image, train_image)
+    ransac_match, _ = ransac(test_image.shape[1], mt, mt_id)
     ransac_matches, ransac_matches_id = zip(*ransac_match)
     print("num_imnlier:", len(ransac_match))
     for mt in ransac_matches:

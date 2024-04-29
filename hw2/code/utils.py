@@ -56,10 +56,13 @@ def normalize(n):
 
 def plot_keypoints(image, keypoints):
 	highlight_image = copy.deepcopy(image)
+	h, w, _ = image.shape
+	sz = max(1, w // 500)
 	for point in keypoints:
 		x, y = point
-		highlight_image[x-1:x+2, y-1:y+2] = [0, 0, 255]
+		highlight_image[x-sz:x+sz+1, y-sz:y+sz+1] = [0, 0, 255]
 	image_show(highlight_image)
+	cv2.imwrite("../result/duck.png", highlight_image)
 
 def top_n_values_with_indices(arr, n):
     # Flatten the array
