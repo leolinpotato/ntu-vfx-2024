@@ -17,13 +17,13 @@ ap.add_argument('-d', '--dir', dest='dir', type=str, default="../data/test", hel
 args = ap.parse_args()
 
 def keypoints_descriptors(image, type='Train'):
-	keypoints = MultiScale_Harris_detection(image)
+	keypoints = MultiScale_Harris_detection(image, threshold = 5)
 	descriptors = SIFT_descriptor(image, keypoints)
 	#print(f"{type} keypoints: ", len(keypoints))
 	#print(f"{type} descriptor:", len(descriptors))
 	return keypoints, descriptors
 
-def read_focal(n, dir="../data/test/focal_length.txt"):
+def read_focal(n, ratio, dir="../data/test/focal_length.txt"):
 	fl_file = open(dir)
 	lines = fl_file.readlines()
 	focal_lengths = [0 for i in range(n)]
@@ -35,7 +35,7 @@ def read_focal(n, dir="../data/test/focal_length.txt"):
 		#print(tmp)
 		i = int(tmp[0])
 		fl = float(tmp[1])
-		focal_lengths[i] = fl
+		focal_lengths[i] = 4600 / ratio
 	return focal_lengths
 
 if __name__ == '__main__':
@@ -43,9 +43,13 @@ if __name__ == '__main__':
 	
 	images = read_images(args.dir)
 	#read focal length
-	focal_lengths = read_focal(len(images))
-	images_reshape = [reshape_image(img, 1) for img in images]
+	ratio = 10
+	focal_lengths = read_focal(len(images), ratio)
+	images_reshape = [reshape_image(img, ratio) for img in images]
+	#image_show(image_to_cylinder(images_reshape[0], focal_lengths[0] * 9 / ratio))
+	#images_reshape = [reshape_image(img, ratio) for img in images]
 	images_cylinder = images_to_cylinder(images_reshape, focal_lengths)
+	
 	
 	'''
 	for i in range(len(images_reshape)-1) :
@@ -56,7 +60,9 @@ if __name__ == '__main__':
 		image_show(img)
 	#image_show(images_cylinder[0])
 	'''
+	
 	blending(images_cylinder)
+	
 	'''
 	show_ransac(images_reshape[0], images_reshape[1])
 	images_matching = image_matching(images_reshape, cheat = True)
